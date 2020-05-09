@@ -18,6 +18,7 @@
 const { Module, Utils, Main } = require("glasscord");
 
 module.exports = class DiscordTitlebar extends Module{
+	static defaultOn = true;
 	static app = ["discord"];
 	static defaultConfig = {titlebar: "native", startupToleranceMs: 5000};
 	cssProps = ["--glasscord-titlebar"];
@@ -108,9 +109,9 @@ module.exports = class DiscordTitlebar extends Module{
 
 		// We can now update the config file if it wasn't
 		this.config.titlebar = os;
-		const current = Utils.getWindowProperties();
+		const current = Main.getInstance().appConfig.windowProps;
 		current.frame = (os === "linux" || (os === "native" && process.platform === "linux"));
-		Utils.setWindowProperties(current);
+		Main.getInstance()._appConfigObj.save();
 		this.saveConfig();
 		
 		// Check if the window has just initialized
