@@ -42,13 +42,11 @@ module.exports = class ExampleModule extends Module{
 	// Register YOUR CSS properties in this static array!
 	static cssProps = ["--example-css-prop"];
 
-	constructor(){
-		super(); // this is mandatory
+	onLoad(){
 		// Stuff to do when the module is loaded
 	}
 
-	shutdown(){
-		super.shutdown(); // this is mandatory
+	onUnload(){
 		// Stuff to do when the module is unloaded
 	}
 
