@@ -16,6 +16,7 @@
 "use strict";
 
 const { Module, Utils, Main } = require("glasscord");
+const electron = require("electron");
 
 module.exports = class DiscordTitlebar extends Module{
 	static defaultOn = true;
@@ -26,6 +27,13 @@ module.exports = class DiscordTitlebar extends Module{
 	currentTitlebars = {};
 	deferredUpdates = {};
 	timeouts = {};
+	
+	onLoad(){
+		/*electron.ipcMain.on("_discordtitlebar_relaunch", () => {
+			electron.app.relaunch();
+			electron.app.quit();
+		});*/ // TODO
+	}
 	
 	windowInit(win){
 		// KWin is buggy, hack around it for now BEGIN
@@ -119,8 +127,9 @@ module.exports = class DiscordTitlebar extends Module{
 			return;
 
 		// If it hasn't, show the modal or pop the previous one in case CSS loading was horribly late
-		if (os === this.currentTitlebars[win.id]) Main._executeInRenderer(win.webContents, this._popModal);
-		else Main._executeInRenderer(win.webContents, this._showConfirmationModal, "Restart needed", "The theme you are using makes use of a custom titlebar that requires a restart to take effect. Would you like to restart now?")
+		// TODO: Fix the modal
+		//if (os === this.currentTitlebars[win.id]) Main._executeInRenderer(win.webContents, this._popModal);
+		//else Main._executeInRenderer(win.webContents, this._showConfirmationModal, "Restart needed", "The theme you are using makes use of a custom titlebar that requires a restart to take effect. Would you like to restart now?")
 	}
 
 	_getLastDeferredUpdate(win){
@@ -187,6 +196,8 @@ module.exports = class DiscordTitlebar extends Module{
 		return true;
 	}
 
+	// TODO: Remove require(), fix modal not showing
+	/**
 	_showConfirmationModal(title, content) {
 		const ModalStack = window.GlasscordApi.findModule(module => module.push && module.update && module.pop && module.popWithKey);
 		const Markdown = window.GlasscordApi.findModule(module => module && module.displayName && module.displayName === "Markdown");
@@ -204,9 +215,7 @@ module.exports = class DiscordTitlebar extends Module{
 				confirmText: "Okay",
 				cancelText: "Cancel",
 				onConfirm: () => {
-					const app = require("electron").remote.app;
-					app.relaunch();
-					app.quit();
+					require("electron").ipcRenderer.send("_discordtitlebar_relaunch");
 				}
 			}, props));
 		});
@@ -217,5 +226,6 @@ module.exports = class DiscordTitlebar extends Module{
 		if (!ModalStack) return console.error("Could not pop the modal");
 		ModalStack.pop();
 	}
+	*/
 }
  
