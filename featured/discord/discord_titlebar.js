@@ -28,13 +28,6 @@ module.exports = class DiscordTitlebar extends Module{
 	deferredUpdates = {};
 	timeouts = {};
 	
-	onLoad(){
-		/*electron.ipcMain.on("_discordtitlebar_relaunch", () => {
-			electron.app.relaunch();
-			electron.app.quit();
-		});*/ // TODO
-	}
-	
 	windowInit(win){
 		// KWin is buggy, hack around it for now BEGIN
 		if(process.platform == "linux"){
@@ -127,7 +120,7 @@ module.exports = class DiscordTitlebar extends Module{
 			return;
 
 		// If it hasn't, show the modal or pop the previous one in case CSS loading was horribly late
-		// TODO: Fix the modal
+		// TODO: Fix modal not showing
 		//if (os === this.currentTitlebars[win.id]) Main._executeInRenderer(win.webContents, this._popModal);
 		//else Main._executeInRenderer(win.webContents, this._showConfirmationModal, "Restart needed", "The theme you are using makes use of a custom titlebar that requires a restart to take effect. Would you like to restart now?")
 	}
@@ -149,8 +142,8 @@ module.exports = class DiscordTitlebar extends Module{
 
 	// Renderer Methods
 	_getWebpackModules(){
-		if (!window.GlasscordApi) return; // In case something went wrong.
-		window.GlasscordApi.findModule = (() => {
+		if (!window.Glasscord_DiscordTitlebar) window.Glasscord_DiscordTitlebar = {}; // In case something went wrong.
+		window.Glasscord_DiscordTitlebar.findModule = (() => {
 			const req = webpackJsonp.push([[], {__extra_id__: (module, exports, req) => module.exports = req}, [["__extra_id__"]]]);
 			delete req.m.__extra_id__;
 			delete req.c.__extra_id__;
@@ -169,7 +162,7 @@ module.exports = class DiscordTitlebar extends Module{
 
 	_changeTitlebar(os){
 		if (!os) return console.error("Something went horribly wrong.");
-		const titleBarComponent = window.GlasscordApi.findModule(module => {
+		const titleBarComponent = window.Glasscord_DiscordTitlebar.findModule(module => {
 			if (!module || !module.default) return false;
 			const moduleString = module.default.toString([]);
 			if (moduleString.includes("macOSFrame")) return true;
@@ -196,13 +189,13 @@ module.exports = class DiscordTitlebar extends Module{
 		return true;
 	}
 
-	// TODO: Remove require(), fix modal not showing
+	// TODO: fix modal not showing
 	/**
 	_showConfirmationModal(title, content) {
-		const ModalStack = window.GlasscordApi.findModule(module => module.push && module.update && module.pop && module.popWithKey);
-		const Markdown = window.GlasscordApi.findModule(module => module && module.displayName && module.displayName === "Markdown");
-		const ConfirmationModal = window.GlasscordApi.findModule(m => m.defaultProps && m.key && m.key() == "confirm-modal");
-		const React = window.GlasscordApi.findModule(m => m.createElement && m.PureComponent);
+		const ModalStack = window.Glasscord_DiscordTitlebar.findModule(module => module.push && module.update && module.pop && module.popWithKey);
+		const Markdown = window.Glasscord_DiscordTitlebar.findModule(module => module && module.displayName && module.displayName === "Markdown");
+		const ConfirmationModal = window.Glasscord_DiscordTitlebar.findModule(m => m.defaultProps && m.key && m.key() == "confirm-modal");
+		const React = window.Glasscord_DiscordTitlebar.findModule(m => m.createElement && m.PureComponent);
 		if (!ModalStack || !ConfirmationModal || !Markdown || !React) return console.error("Could not show restart modal");
 
 		if (!Array.isArray(content)) content = [content];
@@ -215,14 +208,14 @@ module.exports = class DiscordTitlebar extends Module{
 				confirmText: "Okay",
 				cancelText: "Cancel",
 				onConfirm: () => {
-					require("electron").ipcRenderer.send("_discordtitlebar_relaunch");
+					DiscordNative.app.relaunch();
 				}
 			}, props));
 		});
 	}
 
 	_popModal() {
-		const ModalStack = window.GlasscordApi.findModule(module => module.push && module.update && module.pop && module.popWithKey);
+		const ModalStack = window.Glasscord_DiscordTitlebar.findModule(module => module.push && module.update && module.pop && module.popWithKey);
 		if (!ModalStack) return console.error("Could not pop the modal");
 		ModalStack.pop();
 	}
