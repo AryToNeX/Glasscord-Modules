@@ -120,9 +120,8 @@ module.exports = class DiscordTitlebar extends Module{
 			return;
 
 		// If it hasn't, show the modal or pop the previous one in case CSS loading was horribly late
-		// TODO: Fix modal not showing
-		//if (os === this.currentTitlebars[win.id]) Main._executeInRenderer(win.webContents, this._popModal);
-		//else Main._executeInRenderer(win.webContents, this._showConfirmationModal, "Restart needed", "The theme you are using makes use of a custom titlebar that requires a restart to take effect. Would you like to restart now?")
+		if (os === this.currentTitlebars[win.id]) Main._executeInRenderer(win.webContents, this._popModal);
+		else Main._executeInRenderer(win.webContents, this._showConfirmationModal, "Restart needed", "The theme you are using makes use of a custom titlebar that requires a restart to take effect. Would you like to restart now?")
 	}
 
 	_getLastDeferredUpdate(win){
@@ -189,12 +188,10 @@ module.exports = class DiscordTitlebar extends Module{
 		return true;
 	}
 
-	// TODO: fix modal not showing
-	/**
 	_showConfirmationModal(title, content) {
 		const ModalStack = window.Glasscord_DiscordTitlebar.findModule(module => module.push && module.update && module.pop && module.popWithKey);
 		const Markdown = window.Glasscord_DiscordTitlebar.findModule(module => module && module.displayName && module.displayName === "Markdown");
-		const ConfirmationModal = window.Glasscord_DiscordTitlebar.findModule(m => m.defaultProps && m.key && m.key() == "confirm-modal");
+		const ConfirmationModal = window.Glasscord_DiscordTitlebar.findModule(m => m.displayName === "ConfirmModal");
 		const React = window.Glasscord_DiscordTitlebar.findModule(m => m.createElement && m.PureComponent);
 		if (!ModalStack || !ConfirmationModal || !Markdown || !React) return console.error("Could not show restart modal");
 
@@ -204,7 +201,8 @@ module.exports = class DiscordTitlebar extends Module{
 			return React.createElement(ConfirmationModal, Object.assign({
 				header: title,
 				children: content,
-				red: false,
+				transitionState: 1,
+				onClose: this._popModal,
 				confirmText: "Okay",
 				cancelText: "Cancel",
 				onConfirm: () => {
@@ -219,6 +217,4 @@ module.exports = class DiscordTitlebar extends Module{
 		if (!ModalStack) return console.error("Could not pop the modal");
 		ModalStack.pop();
 	}
-	*/
 }
- 
